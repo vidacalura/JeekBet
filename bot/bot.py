@@ -1,4 +1,6 @@
 from typing import Final
+import logging
+import logging.handlers
 import os
 from dotenv import load_dotenv
 from discord import Intents, Client, Message
@@ -14,12 +16,6 @@ intents: Intents = Intents.default()
 intents.message_content = True  # NOQA
 client: Client = Client(intents=intents)
 
-bot = commands.Bot(
-    command_prefix='!',
-    description="Um bot de apostas com moeda fictícia para jogos de Jeek",
-    intents=intents
-)
-
 
 # Lida com as Mensagens
 async def send_message(message: Message, user_message: str) -> None:
@@ -27,9 +23,9 @@ async def send_message(message: Message, user_message: str) -> None:
         print('(jfgjiojiojio)')
         return
 
-# ao colocar "?" antes do comando faz o bot mandar a resposta no PV
-#    if is_private := user_message[0] == '?':
-#        user_message = user_message[1:]
+    # ao colocar "?" antes do comando faz o bot mandar a resposta no PV
+    #    if is_private := user_message[0] == '?':
+    #        user_message = user_message[1:]
 
     try:
         response: str = get_response(user_message)
@@ -59,7 +55,21 @@ async def on_message(message: Message) -> None:
 
 
 # Entrada do main
-def main() -> None:
+def main():
+    logger = logging.getLogger('discord')
+    logger.setLevel(logging.INFO)
+
+    handler = logging.handlers.RotatingFileHandler(
+        filename='discord.log',
+        encoding='utf-8',
+        maxBytes=32 * 1024 * 1024,  # 32 MiB
+        backupCount=5,  # Gera até 5 arquivos de logs diferentes
+    )
+    dt_fmt = '%m-%d-%Y %H:%M:%S'
+    formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
     client.run(token=TOKEN)
 
 
