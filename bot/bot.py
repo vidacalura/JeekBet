@@ -1,77 +1,28 @@
-from typing import Final
-import logging
-import logging.handlers
-import os
-from dotenv import load_dotenv
-from discord import Intents, Client, Message
+import discord
+from discord import Message
 from discord.ext import commands
-from jeekbet import get_response
-
-# Carrega o token do bot
-load_dotenv()
-TOKEN: Final[str] = os.getenv('DISCORD_TOKEN')
-
-# Stup do bot
-intents: Intents = Intents.default()
-intents.message_content = True  # NOQA
-client: Client = Client(intents=intents)
+import settings
 
 
-# Lida com as Mensagens
-async def send_message(message: Message, user_message: str) -> None:
-    if not user_message:
-        print('(jfgjiojiojio)')
-        return
+def run():
+    # Stup do bot
+    intents = discord.Intents.default()
+    intents.message_content = True
 
-    # ao colocar "?" antes do comando faz o bot mandar a resposta no PV
-    #    if is_private := user_message[0] == '?':
-    #        user_message = user_message[1:]
+    bot = commands.Bot(command_prefix="!", intents=intents)
 
-    try:
-        response: str = get_response(user_message)
-        await message.channel.send(response)
-    except Exception as e:
-        print(e)
+# Inicia o bot e carrega os comandos
+    @bot.event
+    async def on_ready():
+        print(f'{bot.user} agora está rodando!')
 
+        for cmd_file in settings.CMDS_DIR.glob("*.py"):
+            if cmd_file.name != "__init__.py":
+                await bot.load_extension(f"cmds.{cmd_file.name[:-3]}")
 
-# Iniciando o bot
-@client.event
-async def on_ready() -> None:
-    print(f'{client.user} agora está rodando!')
+    bot.run(settings.TOKEN)
 
 
-# Faz o logging das mensagens
-@client.event
-async def on_message(message: Message) -> None:
-    if message.author == client.user:
-        return
-
-    username: str = str(message.author)
-    user_message: str = message.content
-    channel: str = str(message.channel)
-
-    print(f'[{channel}] {username}: "{user_message}"')
-    await send_message(message, user_message)
-
-
-# Entrada do main
-def main():
-    logger = logging.getLogger('discord')
-    logger.setLevel(logging.INFO)
-
-    handler = logging.handlers.RotatingFileHandler(
-        filename='discord.log',
-        encoding='utf-8',
-        maxBytes=32 * 1024 * 1024,  # 32 MiB
-        backupCount=5,  # Gera até 5 arquivos de logs diferentes
-    )
-    dt_fmt = '%m-%d-%Y %H:%M:%S'
-    formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
-    client.run(token=TOKEN)
-
-
+# Liga o bot
 if __name__ == '__main__':
-    main()
+    run()
