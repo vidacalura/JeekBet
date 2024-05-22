@@ -1,5 +1,5 @@
+import typing
 import discord
-from discord.ext import commands
 from discord.ext.commands import has_permissions
 from discord import app_commands
 from models.Usuario import Usuario, get_ranking_usuarios
@@ -12,7 +12,7 @@ class Plebe(app_commands.Group):
         await interaction.response.send_message(f"Salvee {interaction.user.mention}!")
 
     @app_commands.command(name="criar-conta",
-                      description="Cadastra um novo usuário no JeekBet")
+                          description="Cadastra um novo usuário no JeekBet")
     async def criar_conta(self, interaction: discord.Interaction):
         usu = Usuario(interaction.user.id, interaction.user.name, 0)
 
@@ -48,6 +48,26 @@ class Adm(app_commands.Group):
     @has_permissions(administrator=True)
     async def adm(self, interaction: discord.Interaction):
         await interaction.response.send_message(f"Parabéns {interaction.user.mention} vc é adm!")
+
+    @app_commands.command(name="criaraposta", description="cria uma aposta(apenas adms)")
+    @has_permissions(administrator=True)
+    async def criaraposta(self, interaction: discord.Interaction, titulo: str, opcao1: str, opcao2: str):
+        opcoes = [opcao1, opcao2]
+
+        aposta = Aposta(0, titulo, opcoes, True, interaction.user.id, interaction.created_at.now)
+
+        try:
+            aposta.criar_aposta()
+            embed = discord.Embed(
+                colour=discord.Colour.og_blurple(),
+                description=f"Aposta criada com as opções '***{opcao1} vs {opcao2}***'"
+                            f"\nCriada as {interaction.created_at.now()}",
+                title=titulo
+            )
+            embed.set_footer(text=f"criado por {interaction.user.name}")
+            await interaction.response.send_message(embed=embed)
+        except Exception as e:
+            await interaction.response.send_message(str(e))
 
 
 async def setup(bot):
