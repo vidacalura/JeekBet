@@ -49,7 +49,7 @@ class Adm(app_commands.Group):
     async def adm(self, interaction: discord.Interaction):
         await interaction.response.send_message(f"Parabéns {interaction.user.mention} vc é adm!")
 
-    @app_commands.command(name="criaraposta", description="cria uma aposta(apenas adms)")
+    @app_commands.command(name="criar-aposta", description="cria uma aposta(apenas adms)")
     @has_permissions(administrator=True)
     async def criaraposta(self, interaction: discord.Interaction, titulo: str, opcao1: str, opcao2: str):
         opcoes = [opcao1, opcao2]
@@ -70,6 +70,21 @@ class Adm(app_commands.Group):
             await interaction.response.send_message(str(e))
 
 
+@app_commands.command(name="ajuda", description="comando de ajuda")
+async def ajuda(interaction: discord.Interaction):
+    try:
+        help_embed = discord.Embed(title="Comandos:", colour=discord.Colour.random())
+        help_embed.set_author(name="Jeekbet")
+        help_embed.add_field(name="criar-conta", value="Cadastra um novo usuário no JeekBet", inline=False)
+        help_embed.add_field(name="dinheiro", value="Mostra quanto de dinheiro o usuário tem", inline=False)
+        help_embed.add_field(name="ranking", value="Mostra o ranking da Jeeconomia", inline=False)
+        help_embed.add_field(name="criar-aposta", value="cria uma aposta (apenas adms)", inline=False)
+        await interaction.response.send_message(embed=help_embed)
+    except Exception as e:
+        await interaction.response.send_message(str(e))
+
+
 async def setup(bot):
     bot.tree.add_command(Adm(name="adm", description="Comandos dos adms"))
     bot.tree.add_command(Plebe(name="aposta", description="Comandos da plebe"))
+    bot.tree.add_command(ajuda)

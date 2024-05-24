@@ -10,6 +10,8 @@ def run():
 
     bot = commands.Bot(command_prefix="!", intents=intents)
 
+    bot.remove_command("help")
+
     # Inicia o bot e carrega os comandos
     @bot.event
     async def on_ready():
