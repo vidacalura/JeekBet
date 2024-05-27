@@ -1,8 +1,7 @@
 import pathlib
 from typing import Final
 import os
-import logging
-from logging.config import dictConfig
+import discord
 from dotenv import load_dotenv
 
 # Carrega o token do bot
@@ -17,3 +16,5 @@ DATABASE: Final[str] = os.getenv('DATABASE')
 BASE_DIR = pathlib.Path(__file__).parent
 
 CMDS_DIR = BASE_DIR / "cmds"
+
+GUILDS_ID = discord.Object(id=int(os.getenv("GUILD")))

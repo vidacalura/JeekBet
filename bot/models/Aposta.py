@@ -29,7 +29,7 @@ class Aposta:
             cur.close()
             conn.close()
 
-            raise Exception("Erro ao cadastrar aposta. Verifique se você já não está cadastrado com !dinheiro")
+            raise Exception("Erro ao cadastrar aposta. Verifique se você já não está cadastrado com /dinheiro")
 
         cur.close()
         conn.close()
